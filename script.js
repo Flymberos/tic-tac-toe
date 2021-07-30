@@ -70,6 +70,7 @@ const gameboard = (() => {
             block.textContent = undefined;
         })
 
+        initializeArray();
         gameLogic.setRoundEnded(false);
     }
 
