@@ -29,7 +29,50 @@ const gameboard = (() => {
 
     }
 
-    let initializeBoard = () => {
+    let humanOrAi = () => {
+
+        clearBoard();
+
+        const playAI = document.querySelector("#ai-button");
+        const playHuman = document.querySelector("#two-player-button");
+
+        playHuman.addEventListener("click", () => {
+            twoPlayerBoard();
+        });
+
+        playAI.addEventListener("click", () => {
+            aiBoard();
+        })
+
+    }
+
+    let aiBoard = () => {
+
+        clearBoard();
+
+        for(let i=0; i<9; i++) {
+            let block = document.createElement("div");
+
+            block.classList.add("block");
+            block.setAttribute("position", i);
+
+            block.addEventListener("click", () => {
+
+                if(block.textContent == ""){
+                    gameLogic.appendSymbol(i, board, currentPlayer);
+                    changeTurn();
+                    gameLogic.appendAiSymbol(i, board, currentPlayer);  
+                    changeTurn();                 
+                }
+            });
+            gridContainer.appendChild(block);
+        }
+
+    }
+
+    let twoPlayerBoard = () => {
+
+        clearBoard();
 
         for(let i=0; i<9; i++){
             let block = document.createElement("div");
@@ -47,7 +90,7 @@ const gameboard = (() => {
             gridContainer.appendChild(block);
         }
 
-        let resetButton = document.querySelector("#reset");
+        let resetButton = document.querySelector("#reset-button");
         resetButton.addEventListener("click", clearBoard);
 
     }
@@ -70,19 +113,22 @@ const gameboard = (() => {
         let blocks = gridContainer.querySelectorAll(".block");
 
         blocks.forEach( block => {
-            block.textContent = undefined;
+            block.textContent = "";
         })
+
+        gridContainer.innerHTML = "";
 
         initializeArray();
         gameLogic.setRoundEnded(false);
+
     }
 
     return {
         initializeArray,
-        initializeBoard,
         drawSymbol,
         clearBoard,
-        changeTurn
+        changeTurn,
+        humanOrAi
     }
 
 })();
@@ -92,16 +138,17 @@ const gameLogic = (() => {
     let roundEnded = false;
 
     const appendSymbol = (position, board, currentPlayer) => {
-        if(!roundEnded) {
-            if(currentPlayer.getIfComputer() === true){
-                let pos = board.indexOf(undefined);
-                console.log(pos);
-                board[pos] = currentPlayer.getSymbol;
-                gameStatusAndDrawSymbol(board, currentPlayer, pos);
-            }else{
-                board[position] = currentPlayer.getSymbol();
-                gameStatusAndDrawSymbol(board, currentPlayer, position);
-            }
+        if(!roundEnded) {  
+            board[position] = currentPlayer.getSymbol();
+            gameStatusAndDrawSymbol(board, currentPlayer, position);
+        }
+    }
+
+    const appendAiSymbol = (board, currentPlayer) => {
+        if(!roundEnded){
+            let freeSpace = board.indexOf(undefined);
+            board[freeSpace] = currentPlayer.getSymbol();
+            gameStatusAndDrawSymbol(board, currentPlayer, freeSpace);
         }
     }
 
@@ -186,12 +233,12 @@ const gameLogic = (() => {
    
     return {
         appendSymbol,
+        appendAiSymbol,
         setRoundEnded
     }
     
 
 })();
 
-
 gameboard.initializeArray();
-gameboard.initializeBoard();
+gameboard.humanOrAi();
